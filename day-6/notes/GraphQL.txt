@@ -1,0 +1,528 @@
+https://graphql.org/
+howtographql.com
+
+https://learning.postman.com/docs/sending-requests/graphql/graphql-overview/
+
+
+GraphQL - Graph Query Language
+
+What is GraphQL?
+What is the use of GraphQL?
+Why it is called as an alternative for REST API?
+GraphQL Query
+GraphQL Mutation
+GrpahQL Schema
+
+Altair GraphQL Client - Chrome Plugin 
+
+What is GraphQL?
+----------------
+
+- Graph Query Language
+
+- Graph - collection of objects & their connections; usually drawn as nodes & lines - Database entity diagram, Class Diagram etc
+- QL - Query Language - SQL 
+
+SQL Vs GraphQL
+SQL 	-> (1) For database (2) relational database (3) specific library/ driver  (4) SQL Syntax
+GraphQL -> (1) For API through Internet (2) Any storage  (3) HTTP & JSON (4) GraphQL Syntax
+
+- GraphQL is a query language for your API - used in backend server
+
+- It is open-source data query and manipulation language for API
+
+- GraphQL is an API query language and a server-side runtime for querying and updating the existing data stored in any kind of data storage.
+
+- Like SQL - here we use query to fetch the data. You have the flexibility to which data to fetch
+  select * from employee;
+  select empno,ename from employee;
+
+- Query to fetch the data and Mutation to alter the data (like GET, POST, PUT, DELETE method mappings)
+
+- Like REST APIs we can use GraphQL with different programming languages like Java, Python, Ruby, PHP etc
+- It was initially developed by Facebook and later moved to open source GraphQL Foundation. 
+
+- Unlike traditional REST APIs, where the server determines the data you receive, GraphQL allows clients to request only the specific data they need.
+
+- It is an alternative to REST and other web service architectures.
+
+
+
+GraphQL requests can perform three types of operations:
+
+    Query - Retrieves data from the server. Queries specify the required data fields and can include arguments for more precise data retrieval.
+
+    Mutation - Manipulates data on the server, including creating, updating, or deleting records. Mutations specify the fields to be returned after the operation and use arguments to detail the manipulation.
+
+    Subscription - Gets real-time data updates from the server. Subscriptions enable clients to listen to specific data fields and receive updates automatically over a persistent connection.
+
+
+https://learning.postman.com/docs/sending-requests/graphql/graphql-overview/
+
+
+What is GraphQL Query?
+
+- GraphQL Query is used to fetch the data from the backend
+- We can compare it with GET REST APIs
+- While working with Java, GrpahQL provides GraphQLQueryResolver interface (we use this in our spring boot application to create our query)
+
+What is GraphQL Mutation?
+- GraphQL Mutation is used to alter the data; ie- Create, Update , Delete data
+- We can compare it with POST, PUT, DELETE REST APIs
+- GraphQLMutationResolver is provided 
+
+What is GraphQL Schema?
+
+- GraphQL Schema provides flexibility to consumers that which attributes they want in response. (In REST API we have fixed response, GraphQL have got flexibility by providing schema)
+- It is a separate file with .graphqls file extension (.gqls)
+- Schema defines which attributes are there in your class with data types
+  Example: Student.java - id, firstName, lastName, email, street, city etc
+
+- Contract between Consumer and Provider on how to get and alter the data for the application
+- Schema is a collection of GraphQL types. 
+  Query and Mutation are root types in schema ie entry point for the application
+
+Example: schema for Student class will as follows
+
+type Student {
+	id : Long
+	firstName : String
+	lastName : String
+	email : String
+	street : String
+	city : String  //we can remove it; if so then consumer may not be getting city value 
+}
+
+
+Graphql Vs REST APIs
+
+1) REST is having fixed response while GraphQL provides flexibility to consumers that which attributes they want in response
+  - as an example -in REST API which exposes 10 fields to consumer- every consumer will get the same 10 fields in the response for that API. In GraphQL - different consumers can ask for different set of fields in response
+  select * from student; - like REST 
+  select id, firstName, lastName from student; - like Graphql
+  select firstName, lastName from student; -- like GraphQL
+
+2) Overfetching and Underfetching with REST API- when we are trying to access an endpoint and we need one property from that endpoint - but it returns the complete data
+	underfetching - we cannot combine multiple endpoint datas (1 endpoint is fetching firstName of student and 2nd endpoint is fetching lastName of student - consumer wants to get both firstName and lastName - so the consumer have to fetch both APIs)
+	select firstName from student;
+	select lastName from student
+	select firstName, lastName from student; //GraphQL
+
+3) REST has different HTTP methods and separate endpoint for each API (we provide different URIs and the entry point will be the rest controller; in GraphQL we wont be having rest controller) while in GraphQL we have Query and Mutation and there will be only one endpoint - all calls will come to this endpoint only
+
+4) GraphQL needs Schema file while REST does NOT need that
+
+Chrome - Altair GraphQL Client
+query{
+ student(id: 1){
+   id
+   firstName
+ }
+}
+
+query{
+ student(id: 1){
+   id
+   firstName
+   lastName
+ }
+}
+
+query{
+ student(id: 1){
+   firstName
+   city
+ }
+}
+
+
+
+------------------------------------------------------------------------------
+
+Setting up Spring Boot Application with GraphQL
+
+Netflix DGS - Domain Graph Service
+
+1) Create a New Spring Boot Application 
+ Dependencies : Spring Web, Spring for GraphQL, Dev Tools
+  Spring for GraphQL - Build GraphQL applications with Spring for GraphQL and GraphQL Java.
+
+2) Writng First Query in GraphQL
+
+@Controller
+public class Welcome {
+ @QueryMapping
+ public String welcomeQuery() {
+  return "Welcome to GraphQL";
+ }
+}
+
+
+-- In REST we have got separate endpoint (URI) for each and every operation where  as for GraphQL we wont be having it. In graphQL we have got only one URL for our application, all request are HTTP POST methods
+
+3) Define GraphQL Schema - to define the class to be used, properties and methods
+src/main/resources/graphql/schema.graphqls
+
+type Query {
+ welcomeQuery: String
+}
+
+welcomeQuery - method name without any arguments and it returns String
+
+spring.graphql.graphiql.enabled=true
+spring.graphql.schema.locations=/graphql-schema
+spring.graphql.schema.file-extensions=*
+
+
+4) Run Query with GraphQL & Spring Boot
+ - Run the Application
+ - Open browser  - http://localhost:8080/graphiql
+     query{
+ 	 welcomeQuery
+     }
+
+ - Altair GraphQL Client Extension - Chrome
+ - Postman - POST - https://localhost:8080/graphql
+     New > GraphQL - http://localhost:8080/graphql    > Query
+
+-----------------------------------------------------------------------
+
+https://www.apollographql.com/docs/apollo-server/schema/schema/
+
+------------------ practicals - 2 -------------------------------------
+
+Movie Application
+
+1) New Spring Starter Project : 02.sb-graphql
+Dependencies: Spring Web, Spring for GraphQL
+
+Defining the GraphQL schema - The first step is to define the schema for our GraphQL API using the GraphQL Schema Definition Language (SDL). 
+The schema defines the operations that can be performed on the data and the types of data that can be returned by those operations.
+
+2) create "schema.graphqls" in the src/main/resources/graphql
+
+Our application will have a type: Movie 
+
+A movie has an ID, a title, a release year, a list of genres (category), and a director. 
+
+We can define the schema for our GraphQL API in schema.graphqls as follows:
+
+type Movie {
+  id: ID!
+  title: String!
+  year: Int!
+  genres: [String!]!
+  director: String!
+}
+
+
+GraphQL supports the scalar types out of the box: ID, String, Int, Float, Boolean
+The ID type is used for unique identifiers, while the ! after the type name indicates that the field is non-nullable.
+
+
+3) Generating data for our GraphQL schema
+
+GraphQL doesn't care where data comes from. It can be a database, a cache, or any other data source. Here we will keep the data in memory, as arrays.
+
+public record Movie(Integer id, String title, int year, List<String> genres, String director) {}
+
+4) Create Repositories
+
+@Repository
+public class MovieRepository {
+    private List<Movie> mockMovies;
+    
+    @PostConstruct
+    public void initializeMockMovies() {
+        mockMovies = new ArrayList<Movie>(List.of(        		
+                new Movie(1, "The Matrix", 1999, List.of("Action", "Sci-Fi"), "The Wachowskis"),
+                new Movie(2, "The Matrix Reloaded", 2003, List.of("Action", "Sci-Fi"), "The Wachowskis"),
+                new Movie(3, "The Matrix Revolutions", 2003, List.of("Action", "Sci-Fi"), "The Wachowskis"))
+        );
+    }
+
+    public Movie getById(Integer id) {
+        return mockMovies.stream().filter(movie -> movie.id().equals(id)).findFirst().orElse(null);
+    }
+
+    public void addMovie(Movie movie) {
+        mockMovies.add(movie);
+    }
+}
+
+5) Writing queries and mutations
+
+define the queries and mutations that will be exposed by our GraphQL API. Queries fetch data; mutations modify data.
+
+in schema.graphqls
+
+type Query {
+  movieById(id: ID!): Movie
+}
+
+type Mutation {
+  addMovie(
+    id: ID!
+    title: String!
+    year: Int!
+    genres: [String]!
+    director: String!
+  ): Movie
+}
+
+The movieById query takes an ID argument and returns a Movie. 
+
+The addMovie mutation takes ID, title, year, genre(s), and director as arguments and returns a Movie.
+
+6) Create controllers
+
+@Controller
+public class MovieController {
+    private final MovieRepository movieRepository;
+
+    public MovieController(MovieRepository movieRepository) {
+        this.movieRepository = movieRepository;
+    }
+
+    @QueryMapping
+    public Movie movieById(@Argument Integer id) {
+        return movieRepository.getById(id);
+    }
+
+    @MutationMapping
+    public Movie addMovie(@Argument Integer id, @Argument String title, @Argument Integer year, @Argument List<String> genres, @Argument String director) {
+        Movie movie = new Movie(id, title, year, genres, director);
+        movieRepository.addMovie(movie);
+        return movie;
+    }
+}
+
+We use @QueryMapping and @MutationMapping to map the queries and mutations to their respective methods. 
+The @Argument annotation is used to bind the method argument to the GraphQL query or mutation argument.
+
+the name of the method matches the name of the query or mutation. 
+We cann use the @QueryMapping annotation with a custom method name:
+
+@QueryMapping(name = "movieById")
+public Actor findMovieById(@Argument Integer id) {
+   return movieRepository.getById(id);
+}
+
+
+7) Configurations
+
+GraphQL has a built-in playground that we can use to test the API. Enable it by adding the following property to the application.properties file:
+
+spring.graphql.graphiql.enabled=true
+
+8) Run the application & Test the application
+
+http://localhost:8080/graphiql
+
+query {
+  movieById(id: 1) {
+    id
+    title
+    year
+    genres
+    director
+  }
+}
+
+In case a client doesn't need all the fields of a movie, it can select only a subset. 
+For example, if we only need the title and the year of a movie, we can modify the query to look like this:
+
+query {
+  movieById(id: 4) {
+    title
+    year
+  }
+}
+
+
+a mutation to add a new movie:
+
+mutation {
+  addMovie(
+    id: 4
+    title: "Inception"
+    year: 2010
+    genres: ["Action", "SciFi"]
+    director: "Christopher Nolan"
+  ) {
+    id
+    title
+    year
+    genres
+    director
+  }
+}
+
+---------------------------------------------------------------------
+adding a new Query to fetch all movies
+
+-- in schema 
+type Query {
+  movieById(id: ID!): Movie
+  allMovies: [Movie!]!
+}
+
+-- in repository
+   public List<Movie> getAllMovies(){
+    	return mockMovies;
+    }
+
+-- in controller
+    @QueryMapping(name = "allMovies")
+    public List<Movie> findAllMovies() {
+        return movieRepository.getAllMovies();
+    }
+
+-- testing
+query {
+  allMovies {
+    id
+    title
+    year
+    director
+  }
+}
+
+
+------------------ practicals - 3 -------------------------------------
+Movie & Actor Application
+
+type Actor {
+  id: ID!
+  name: String!
+  movies: [Movie!]!
+}
+
+
+public record Actor(Integer id, String name, List<Movie> movies) {}
+
+@Repository
+public class ActorRepository {
+
+    private List<Actor> mockActors;
+    private MovieRepository movieRepository;
+
+    public ActorRepository(MovieRepository movieRepository) {
+        this.movieRepository = movieRepository;
+    }
+
+    @PostConstruct
+    private void initializeMockActors() {
+        mockActors = new ArrayList<>(List.of(
+                new Actor(1, "Keanu Reeves",  List.of(movieRepository.getById(1), movieRepository.getById(2), movieRepository.getById(3))),
+                new Actor(2, "Laurence Fishburne", List.of(movieRepository.getById(1), movieRepository.getById(2), movieRepository.getById(3))))
+        );
+    }
+
+    public Actor getById(Integer id) {
+        return mockActors
+                .stream()
+                .filter(actor -> actor.id().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+}
+
+
+in schema.graphqls
+
+type Query {
+  movieById(id: ID!): Movie
+  allMovies: [Movie!]!
+  actorById(id: ID!): Actor
+}
+
+
+@Controller
+public class ActorController {
+
+    private final ActorRepository actorRepository;
+
+    public ActorController(ActorRepository actorRepository) {
+        this.actorRepository = actorRepository;
+    }
+
+    @QueryMapping
+    public Actor actorById(@Argument Integer id) {
+        return actorRepository.getById(id);
+    }
+}
+
+
+
+@QueryMapping(name = "actorById")
+public Actor findActorById(@Argument Long id) {
+   return actorRepository.getById(id);
+}
+
+
+testing
+query {
+  actorById(id: 1){
+    id
+    name
+    movies {
+      id
+      title
+      year
+      director
+    }
+  }
+}
+
+
+------------------ practicals - 4 -------------------------------------
+Spring for GraphQL - Pagination
+
+Pagination is a key concept for managing data requests in GraphQL and other web APIs. 
+By breaking up the data into smaller, more manageable chunks, pagination ensures that GraphQL API requests are optimized for efficiency. 
+It also ensures that we are not simultaneously overloading our services with too much data.
+
+Pagination enhances the user experience by breaking down content into bite-sized portions, making navigating the data easier.
+
+Pagination Approach 
+(1) Offset based Pagination - Offset-based pagination is a simpler and more traditional approach to pagination. It relies on specifying the number of items to fetch and the dataset’s starting position (offset).
+
+In REST API - GET /items?limit=20&offset=100
+In GraphQL - 
+query items {
+  items(limit: 20, offset : 100) {
+  ...
+  }
+}
+
+(2) Cursor-Based Pagination - Cursor-based pagination, also known as keyset pagination, is a technique that uses a unique identifier or cursor to paginate through a dataset. Rather than relying on offsets or page numbers, cursor-based pagination provides a more reliable and efficient way to navigate data.
+
+In REST API 
+//Initial Request
+GET /items?limit=20
+//Subsequent request
+GET /items?limit=20&after_id=ABC345
+
+In GraphQL:
+
+#Initial Request
+query items {
+  items(first: 20) {
+  ...
+  }
+}
+#Subsequent request
+query items {
+  items(first: 20, after : "ABC345") {
+  ...
+  }
+}
+
+
+Usecase - https://compositecode.blog/2023/06/23/graphql-pagination-with-java-spring-boots-graphql-for-spring/
+
+
+https://medium.com/dev-jam/movie-suggestion-app-on-graphql-and-apollo-c0647f142104
+==============================================================================
+
